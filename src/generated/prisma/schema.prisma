@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+  FREELANCER
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+// ─── User ─────────────────────────────────────────────
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  avatar    String?
+  role      Role     @default(USER)
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relations
+  payments   Payment[]
+  uploads    Upload[]
+  sentEmails Email[]
+}
+
+// ─── Payment ──────────────────────────────────────────
+
+model Payment {
+  id        Int           @id @default(autoincrement())
+  amount    Float
+  currency  String        @default("usd")
+  status    PaymentStatus @default(PENDING)
+  stripeId  String        @unique
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // relations
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Upload ───────────────────────────────────────────
+
+model Upload {
+  id        Int      @id @default(autoincrement())
+  url       String
+  publicId  String   @unique // cloudinary public id
+  fileName  String
+  fileSize  Int
+  mimeType  String
+  createdAt DateTime @default(now())
+
+  // relations
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Email ────────────────────────────────────────────
+
+model Email {
+  id      Int      @id @default(autoincrement())
+  to      String
+  subject String
+  body    String
+  sentAt  DateTime @default(now())
+  success Boolean  @default(true)
+
+  // relations
+  sentById Int
+  sentBy   User @relation(fields: [sentById], references: [id], onDelete: Cascade)
+}
