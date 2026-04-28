@@ -21,7 +21,6 @@ app.use(helmet());
 // ─── CORS ─────────────────────────────────────────────
 app.use(cors({
   origin: [
-    'http://localhost:4200',
     process.env.FRONTEND_URL
   ],
   credentials: true,
@@ -54,8 +53,12 @@ app.use('/api/email', emailRoutes);
 app.use('/api/payment', paymentRoutes);
 
 // ─── Health Check ─────────────────────────────────────
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+// src/app.js
+app.get('/', (req, res) => {
+  res.json({ 
+    message: '🚀 API is running',
+    version: '1.0.0'
+  });
 });
 
 // ─── Error Handling ───────────────────────────────────
