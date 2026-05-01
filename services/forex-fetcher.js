@@ -16,7 +16,6 @@ async function fetchForexNews() {
 
 module.exports = { fetchForexNews };
 
-const axios = require('axios');
 
 const FINNHUB_KEY = 'd7plc8hr01qosaap1t70d7plc8hr01qosaap1t7g';
 
