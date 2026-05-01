@@ -1,4 +1,4 @@
-import {axios} from 'axios';
+import axios from 'axios';
 import {cron} from  'node-cron';
 
 async function fetchForexNews() {
