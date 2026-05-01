@@ -53,7 +53,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/payment', paymentRoutes);
 app.get('/api/getForexNews', async (req, res) => {
-  const data = await fetchNewData()
+  const data = await getForexNews();
   res.json({success: true, response : data })
 })
 
