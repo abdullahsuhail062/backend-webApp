@@ -19,7 +19,7 @@ import axios from 'axios';
 
 const FINNHUB_KEY = 'd7plc8hr01qosaap1t70d7plc8hr01qosaap1t7g';
 
-export const fetchNewData= async () => {
+export const getForexNews= async () => {
     try {
         const response = await axios.get('https://finnhub.io/api/v1/news?category=forex&token=d7plc8hr01qosaap1t70d7plc8hr01qosaap1t7g');
         return await response.json()
