@@ -1,20 +1,20 @@
 import axios from 'axios';
 // import {cron} from  'node-cron';
 
-async function fetchForexNews() {
-  try {
-    // Note: Some sites require a User-Agent header to allow scraping
-    const response = await axios.get(process.env.FOREX_FACTORY_URL, {
-      headers: { 'User-Agent': 'Mozilla/5.0' }
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching news:", error.message);
-    return []; // Return empty array so AI doesn't crash
-  }
-}
+// async function fetchForexNews() {
+//   try {
+//     // Note: Some sites require a User-Agent header to allow scraping
+//     const response = await axios.get(process.env.FOREX_FACTORY_URL, {
+//       headers: { 'User-Agent': 'Mozilla/5.0' }
+//     });
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error fetching news:", error.message);
+//     return []; // Return empty array so AI doesn't crash
+//   }
+// }
 
-module.exports = { fetchForexNews };
+// module.exports = { fetchForexNews };
 
 
 const FINNHUB_KEY = 'd7plc8hr01qosaap1t70d7plc8hr01qosaap1t7g';
