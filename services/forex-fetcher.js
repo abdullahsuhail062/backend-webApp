@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {cron} from  'node-cron';
+// import {cron} from  'node-cron';
 
 async function fetchForexNews() {
   try {
