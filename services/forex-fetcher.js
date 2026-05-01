@@ -20,10 +20,10 @@ const axios = require('axios');
 
 const FINNHUB_KEY = 'd7plc8hr01qosaap1t70d7plc8hr01qosaap1t7g';
 
-async function getForexNews() {
+export const fetchNewData= async () => {
     try {
-        const response = await axios.get(`https://finnhub.io/api/v1/news?category=forex&token=${FINNHUB_KEY}`);
-        
+        const response = await axios.get('https://finnhub.io/api/v1/news?category=forex&token=d7plc8hr01qosaap1t70d7plc8hr01qosaap1t7g');
+        return await response.json()
         const articles = response.data; // Returns an array of news objects
 
         articles.slice(0, 5).forEach(news => {
@@ -38,7 +38,4 @@ async function getForexNews() {
     }
 }
 
-cron.schedule('*/5 * * * 1-5', () => {
-    console.log('Market is open. Checking Finnhub...');
-    getForexNews();
-});
+  export default getForexNews();

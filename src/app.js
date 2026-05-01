@@ -1,9 +1,10 @@
-import express from 'express';
+import express, { response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+import { fetchNewData } from '../services/forex-fetcher.js';
 
 import authRoutes from './routes/authRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
@@ -51,6 +52,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('api/getForexNews', async (req, res) => {
+  const data = await fetchNewData()
+  res.json({success: true, response : data })
+})
 
 // ─── Health Check ─────────────────────────────────────
 // src/app.js
