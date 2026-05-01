@@ -52,7 +52,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/payment', paymentRoutes);
-app.use('api/getForexNews', async (req, res) => {
+app.get('api/getForexNews', async (req, res) => {
   const data = await fetchNewData()
   res.json({success: true, response : data })
 })
