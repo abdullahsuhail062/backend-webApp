@@ -29,6 +29,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.options('/{*path}', cors());
+app.set('trust proxy', 1);
 
 // ─── Rate Limiting ────────────────────────────────────
 const limiter = rateLimit({
