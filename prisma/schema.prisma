@@ -38,6 +38,7 @@ model User {
   avatar    String?
   role      Role      @default(USER)
   isAdmin   Boolean   @default(false)
+  refreshTokens RefreshToken[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
@@ -45,6 +46,15 @@ model User {
   payments     Payment[]
   uploads      Upload[]
   sentEmails   Email[]
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 }
 
 // ─── Payment ──────────────────────────────────────────

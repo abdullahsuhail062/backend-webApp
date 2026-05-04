@@ -1,13 +1,40 @@
 import bcrypt from 'bcryptjs';
 import prisma from '../config/db.js';
-import { generateToken } from '../utils/generateToken.js';
+import { generateTokens } from '../utils/generateToken.js';
 import ApiError from '../utils/ApiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import { error } from 'node:console';
+
+export const refreshToken = asyncHandler(async (req, res)=> {
+  const {refreshToken} = req.cookies.refreshToken
+
+  try {
+    // Check Prisma for existence
+  const dbToken = await prisma.refreshToken.findUnique({ where: { token } });
+  if (!dbToken) return res.status(403).send();
+
+  // Rotation: Clear old and generate new
+  await prisma.refreshToken.delete({ where: { token } });
+  const tokens = await generateTokens(payload.userId);
+
+  // Re-issue both cookies
+  res.cookie('accessToken', tokens.accessToken, { /* same settings as above */ });
+  res.cookie('refreshToken', tokens.refreshToken, { /* same settings as above */ });
+
+  res.json({ status: "Tokens rotated" });
+
+  }catch (error) {
+    return res.status(401).json({error: Unauthurized})
+  }
+
+
+
+})
 
 // ─── Register ─────────────────────────────────────────
 export const register = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
-
+try {
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) throw new ApiError(400, 'Email already exists');
 
@@ -18,27 +45,47 @@ export const register = asyncHandler(async (req, res) => {
     select: { id: true, name: true, email: true, role: true }
   });
 
-  const token = generateToken({ id: user.id, email: user.email });
+  const token = generateTokens({ id: user.id, email: user.email });
 
   res.status(201).json({ success: true, token, user });
+} catch (error) {
+return res.status(401).json({ error: "server error" });
+
+}
 });
 
 // ─── Login ────────────────────────────────────────────
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-
+try {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) throw new ApiError(400, 'Invalid email or password');
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new ApiError(400, 'Invalid email or password');
 
-  const token = generateToken({ id: user.id, email: user.email });
+  const {refreshToken, accessToken} = generateTokens({ id: user.id });
+  res.cookie('accessToken', accessToken, {
+    httpOnly: true,
+    secure: true,      // Set to false for localhost/HTTP
+    sameSite: 'strict',
+    maxAge: 15 * 60 * 1000 // 15 Minutes
+  });
+  res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,    // 🛡️ JavaScript cannot read this (XSS protection)
+      secure: true,      // 🔒 Only sent over HTTPS (use false for local development)
+      sameSite: 'strict', // 🛑 Prevents CSRF
+      path: '/',         // 📂 Available for all routes
+      maxAge: 7 * 24 * 60 * 60 * 1000 // ⏳ 7 days (matching your DB/JWT expiry)
+    });
 
   // ✅ never send password back
   const { password: _, ...safeUser } = user;
 
   res.json({ success: true, message: 'Login successful', token, user: safeUser });
+} catch (error) {
+return res.status(401).json({ error: "Unauthorized" });
+}
 });
 
 // ─── Get Profile ──────────────────────────────────────

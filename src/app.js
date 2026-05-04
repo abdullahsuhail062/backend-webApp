@@ -1,4 +1,5 @@
 import express, { response } from 'express';
+import cookieParser from 'cookieParser'
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -15,6 +16,7 @@ import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 dotenv.config();
 
 const app = express();
+app.use(cookieParser());
 
 // ─── Security Middleware ───────────────────────────────
 app.use(helmet());
