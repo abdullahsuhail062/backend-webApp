@@ -15,10 +15,10 @@ export const authenticateUser = asyncHandler(async (req, res, next) => {
     jwt.sign(email, process.env.REFRESH_TOKEN)
 
 
-    const decoded = jwt.verify(email, process.env.JWT_SECRET);
+    //const decoded = jwt.verify(email, process.env.JWT_SECRET);
 
 
-    req.user = decoded; // contains userId or whatever you signed
+    //req.user = decoded; // contains userId or whatever you signed
     next();
 
   } catch (error) {

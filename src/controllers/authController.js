@@ -87,100 +87,99 @@ return res.status(401).json({ error: "server error" });
 });
 
 // ─── Login ────────────────────────────────────────────
-// export const login = asyncHandler(async (req, res) => {
-//   const { email, password } = req.body;
-// try {
-//   const user = await prisma.user.findUnique({ where: { email } });
-//   if (!user) throw new ApiError(400, 'Invalid email or password');
-
-//   const isMatch = await bcrypt.compare(password, user.password);
-//   if (!isMatch) throw new ApiError(400, 'Invalid email or password');
-
-//   const tokens = await generateTokens({ id: user.id, email: user.email });
-//   res.cookie('accessToken', tokens.accessToken, {
-//     httpOnly: true,
-//     secure: true,      // Set to false for localhost/HTTP
-//     sameSite: 'none',
-//     maxAge: 15 * 60 * 1000 // 15 Minutes
-//   });
-//   res.cookie('refreshToken', tokens.refreshToken, {
-//       httpOnly: true,    // 🛡️ JavaScript cannot read this (XSS protection)
-//       secure: true,      // 🔒 Only sent over HTTPS (use false for local development)
-//       sameSite: 'none', // 🛑 Prevents CSRF
-//       path: '/',         // 📂 Available for all routes
-//       maxAge: 7 * 24 * 60 * 60 * 1000 // ⏳ 7 days (matching your DB/JWT expiry)
-//     });
-
-//   // ✅ never send password back
-//   const { password: _, ...safeUser } = user;
-
-//   res.json({
-//     success: true,
-//     message: 'Login successful',
-//     user: safeUser,
-//   });
-// } catch (error) {
-// return res.status(401).json({ error: "Unauthorized" });
-// }
-// });
-
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-
-  // 1. Validation (Basic check before hitting DB)
-  if (!email || !password) {
-    throw new ApiError(400, 'Email and password are required');
-  }
-
-  // 2. Fetch user
+try {
   const user = await prisma.user.findUnique({ where: { email } });
-  console.log(user, 'is user being fetched?');
-  
-  
-  // 3. Constant-time check: Even if user doesn't exist, we should 
-  // ideally proceed to a hash check to prevent timing attacks, 
-  // but a simple check is standard for most apps.
-  if (!user) {
-    throw new ApiError(401, 'Invalid email or password');
-  }
+  if (!user) throw new ApiError(400, 'Invalid email or password');
 
-  // 4. Verify Password
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    throw new ApiError(401, 'Invalid email or password');
-  }
+  if (!isMatch) throw new ApiError(400, 'Invalid email or password');
 
-  // 5. Generate Tokens
-  const tokens = await generateTokens({ email:email });
-
-  // 6. Set Cookies  
-  const cookieOptions = {
-    httpOnly: true,
-    secure: true,          // Only true in production (HTTPS)
-    sameSite: 'none', 
-    path: '/',
-  };
-
+  const tokens = await generateTokens({email: email });
   res.cookie('accessToken', tokens.accessToken, {
-    ...cookieOptions,
-    maxAge: 15 * 60 * 1000, // 15 mins
+    httpOnly: true,
+    secure: true,      // Set to false for localhost/HTTP
+    sameSite: 'none',
+    maxAge: 15 * 60 * 1000 // 15 Minutes
   });
-
   res.cookie('refreshToken', tokens.refreshToken, {
-    ...cookieOptions,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  });
+      httpOnly: true,    // 🛡️ JavaScript cannot read this (XSS protection)
+      secure: true,      // 🔒 Only sent over HTTPS (use false for local development)
+      sameSite: 'none', // 🛑 Prevents CSRF
+      path: '/',         // 📂 Available for all routes
+      maxAge: 7 * 24 * 60 * 60 * 1000 // ⏳ 7 days (matching your DB/JWT expiry)
+    });
 
-  // 7. Strip sensitive data
+  // ✅ never send password back
   const { password: _, ...safeUser } = user;
 
-  res.status(200).json({
+  res.json({
     success: true,
     message: 'Login successful',
     user: safeUser,
-    // Note: You usually don't send tokens in JSON if using Cookies
   });
+} catch (error) {
+return res.status(401).json({ error: "Unauthorized" });
+}
 });
+
+// export const login = asyncHandler(async (req, res) => {
+//   const { email, password } = req.body;
+
+//   // 1. Validation (Basic check before hitting DB)
+//   if (!email || !password) {
+//     throw new ApiError(400, 'Email and password are required');
+//   }
+
+//   // 2. Fetch user
+//   const user = await prisma.user.findUnique({ where: { email } });
+  
+  
+//   // 3. Constant-time check: Even if user doesn't exist, we should 
+//   // ideally proceed to a hash check to prevent timing attacks, 
+//   // but a simple check is standard for most apps.
+//   if (!user) {
+//     throw new ApiError(401, 'Invalid email or password');
+//   }
+
+//   // 4. Verify Password
+//   const isMatch = await bcrypt.compare(password, user.password);
+//   if (!isMatch) {
+//     throw new ApiError(401, 'Invalid email or password');
+//   }
+
+//   // 5. Generate Tokens
+//   const tokens = await generateTokens({ email:email });
+
+//   // 6. Set Cookies  
+//   const cookieOptions = {
+//     httpOnly: true,
+//     secure: true,          // Only true in production (HTTPS)
+//     sameSite: 'none', 
+//     path: '/',
+//   };
+
+//   res.cookie('accessToken', tokens.accessToken, {
+//     ...cookieOptions,
+//     maxAge: 15 * 60 * 1000, // 15 mins
+//   });
+
+//   res.cookie('refreshToken', tokens.refreshToken, {
+//     ...cookieOptions,
+//     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+//   });
+
+//   // 7. Strip sensitive data
+//   const { password: _, ...safeUser } = user;
+
+//   res.status(200).json({
+//     success: true,
+//     message: 'Login successful',
+//     user: safeUser,
+//     // Note: You usually don't send tokens in JSON if using Cookies
+//   });
+// });
 
 // ─── Get Profile ──────────────────────────────────────
 export const getProfile = asyncHandler(async (req, res) => {
