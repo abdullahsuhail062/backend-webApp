@@ -93,7 +93,7 @@ try {
   res.cookie('refreshToken', refreshToken, {
       httpOnly: true,    // 🛡️ JavaScript cannot read this (XSS protection)
       secure: true,      // 🔒 Only sent over HTTPS (use false for local development)
-      sameSite: 'strict', // 🛑 Prevents CSRF
+      sameSite: 'none', // 🛑 Prevents CSRF
       path: '/',         // 📂 Available for all routes
       maxAge: 7 * 24 * 60 * 60 * 1000 // ⏳ 7 days (matching your DB/JWT expiry)
     });
