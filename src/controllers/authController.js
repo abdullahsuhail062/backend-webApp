@@ -151,7 +151,7 @@ export const login = asyncHandler(async (req, res) => {
   }
 
   // 5. Generate Tokens
-  const tokens = await generateTokens({ id: user.id, email: user.email });
+  const tokens = await generateTokens({ id: user.id, email:email });
 
   // 6. Set Cookies  
   const cookieOptions = {

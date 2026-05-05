@@ -11,6 +11,7 @@ export const authenticateUser = asyncHandler(async (req, res, next) => {
     if (!token) {
       throw new ApiError(401, "No token provided");
     }
+    const token = jwt.sign(email, process.env.JWT_SECRET)
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
