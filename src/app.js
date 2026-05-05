@@ -11,6 +11,7 @@ import authRoutes from './routes/authRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import emailRoutes from './routes/emailRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+import meRoute from './routes/meRoute.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 
 dotenv.config();
@@ -55,7 +56,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/payment', paymentRoutes);
-app.get('/api',authRoutes)
+app.get('/api', meRoute)
 
 
 // ─── Health Check ─────────────────────────────────────

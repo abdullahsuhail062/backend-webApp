@@ -87,7 +87,7 @@ try {
   res.cookie('accessToken', accessToken, {
     httpOnly: true,
     secure: true,      // Set to false for localhost/HTTP
-    sameSite: 'strict',
+    sameSite: 'none',
     maxAge: 15 * 60 * 1000 // 15 Minutes
   });
   res.cookie('refreshToken', refreshToken, {
