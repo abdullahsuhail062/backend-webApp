@@ -134,6 +134,8 @@ export const login = asyncHandler(async (req, res) => {
 
   // 2. Fetch user
   const user = await prisma.user.findUnique({ where: { email } });
+  console.log(user, 'is user being fetched?');
+  
   
   // 3. Constant-time check: Even if user doesn't exist, we should 
   // ideally proceed to a hash check to prevent timing attacks, 
