@@ -56,7 +56,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/payment', paymentRoutes);
-app.get('/api',meRoute)
+app.use('/api',meRoute)
 
 
 // ─── Health Check ─────────────────────────────────────
