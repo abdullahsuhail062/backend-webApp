@@ -1,5 +1,5 @@
 import express, { response } from 'express';
-import cookieParser from 'cookieParser'
+import cookieParser from 'cookie_Parser'
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
