@@ -11,9 +11,12 @@ export const authenticateUser = asyncHandler(async (req, res, next) => {
     if (!token) {
       throw new ApiError(401, "No token provided");
     }
-    const token = jwt.sign(email, process.env.JWT_SECRET)
+    jwt.sign(email, process.env.JWT_SECRET)
+    jwt.sign(email, process.env.REFRESH_TOKEN)
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const decoded = jwt.verify(email, process.env.JWT_SECRET);
+
 
     req.user = decoded; // contains userId or whatever you signed
     next();
