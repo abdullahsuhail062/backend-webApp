@@ -4,3 +4,5 @@ import { authenticateUser } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 router.get('/me',authenticateUser, verifyUserToken)
+
+export default router;
