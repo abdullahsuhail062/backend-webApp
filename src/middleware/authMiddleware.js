@@ -4,15 +4,22 @@ import ApiError from '../utils/ApiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
 export const authenticateUser = asyncHandler(async (req, res, next) => {
-  const authHeader = req.headers.authorization;
+   try {
+    // get token from cookies instead of headers
+    const token = req.cookies?.accessToken;
 
-  if (!authHeader?.startsWith('Bearer ')) {
-    throw new ApiError(401, 'No token provided');
+    if (!token) {
+      throw new ApiError(401, "No token provided");
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    req.user = decoded; // contains userId or whatever you signed
+    next();
+
+  } catch (error) {
+    next(new ApiError(401, "Invalid or expired token"));
   }
-
-  const token = authHeader.split(' ')[1];
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
   const user = await prisma.user.findUnique({
     where: { id: decoded.id },
     select: { id: true, name: true, email: true, role: true, isAdmin: true }

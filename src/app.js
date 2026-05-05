@@ -55,10 +55,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/payment', paymentRoutes);
-app.get('/api/getForexNews', async (req, res) => {
-  const data = await getForexNews();
-  res.json({success: true, response : data })
-})
+app.get('/api/me')
+
 
 // ─── Health Check ─────────────────────────────────────
 // src/app.js
