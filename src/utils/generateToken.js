@@ -2,12 +2,12 @@ import jwt from 'jsonwebtoken';
 import prisma from '../config/db.js';
 export const generateTokens = async (payload) => {
   // 1. Generate short-lived Access Token (15 mins)
-  const accessToken = jwt.sign({ userId, email }, process.env.JWT_SECRET, {
+  const accessToken = jwt.sign({ id, email }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
   // 2. Generate long-lived Refresh Token (7 days)
-  const refreshToken = jwt.sign({ userId }, process.env.REFRESH_SECRET, {
+  const refreshToken = jwt.sign({ id }, process.env.REFRESH_SECRET, {
     expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
   });
 
