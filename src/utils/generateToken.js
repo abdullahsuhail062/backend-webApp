@@ -7,7 +7,7 @@ export const generateTokens = async (payload) => {
   });
 
   // 2. Generate long-lived Refresh Token (7 days)
-  const refreshToken = jwt.sign({ id: payload.id }, process.env.REFRESH_SECRET, {
+  const refreshToken = jwt.sign({ id: payload.id }, process.env.REFRESH_TOKEN_SECRET, {
     expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
   });
 
