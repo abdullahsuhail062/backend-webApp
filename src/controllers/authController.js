@@ -1,62 +1,33 @@
-import bcrypt from 'bcryptjs';
-import prisma from '../config/db.js';
+import { userService } from '../services/user.service.js';
 import { generateTokens } from '../utils/generateToken.js';
+import { setAuthCookies } from '../utils/auth.service.js';
 import ApiError from '../utils/ApiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
-import { error } from 'node:console';
-import { authenticateUser } from '../middleware/authMiddleware.js';
-import { setAuthCookies } from '../utils/auth.service.js';
+import bcrypt from 'bcryptjs';
 
-export const refreshToken = asyncHandler(async (req, res)=> {
-  const {refreshToken} = req.cookies.refreshToken
+export const getMe = asyncHandler(async (req, res) => {
+  // 1. The middleware already verified the token and fetched the ID
+  // 2. We fetch a fresh copy of the user to ensure data is current
+  const user = await userService.getAuthUser(req.user.id);
 
-  try {
-    // Check Prisma for existence
-  const dbToken = await prisma.refreshToken.findUnique({ where: { token } });
-  if (!dbToken) return res.status(403).send();
-
-  // Rotation: Clear old and generate new
-  await prisma.refreshToken.delete({ where: { token } });
-  const tokens = await generateTokens(payload.userId);
-
-  // Re-issue both cookies
-  res.cookie('accessToken', tokens.accessToken, { /* same settings as above */ });
-  res.cookie('refreshToken', tokens.refreshToken, { /* same settings as above */ });
-
-  res.json({ status: "Tokens rotated" });
-
-  }catch (error) {
-    return res.status(401).json({error: Unauthurized})
+  if (!user) {
+    throw new ApiError(404, "User session not found");
   }
 
-
-
-})
-
-export const verifyUser = asyncHandler(async (req, res) => {
-  const {userId} = req.user.id
-    const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true, name: true, email: true,  isAdmin: true }
+  res.status(200).json({
+    success: true,
+    user,
   });
-
-  if (!user) throw new ApiError(401, 'User not found');
-  
-
-})
+});
 
 // ─── Register ─────────────────────────────────────────
 export const register = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
-  const existingUser = await prisma.user.findUnique({ where: { email } });
+
+  const existingUser = await userService.findUserByEmail(email);
   if (existingUser) throw new ApiError(400, 'Email already exists');
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const user = await prisma.user.create({
-    data: { name, email, password: hashedPassword },
-    select: { id: true, name: true, email: true, role: true }
-  });
+  const user = await userService.createUser({ name, email, password });
 
   const tokens = await generateTokens({ id: user.id, email: user.email });
   setAuthCookies(res, tokens);
@@ -68,87 +39,44 @@ export const register = asyncHandler(async (req, res) => {
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) throw new ApiError(400, 'Invalid email or password');
+  const user = await userService.findUserByEmail(email);
+  if (!user) throw new ApiError(401, 'Invalid email or password');
 
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) throw new ApiError(400, 'Invalid email or password');
+  if (!isMatch) throw new ApiError(401, 'Invalid email or password');
 
-  const tokens = await generateTokens({id: user.id, email: user.email });
-  setAuthCookies(res, tokens)
+  const tokens = await generateTokens({ id: user.id, email: user.email });
+  setAuthCookies(res, tokens);
 
-  // ✅ never send password back
   const { password: _, ...safeUser } = user;
-
-  res.json({
-    success: true,
-    message: 'Login successful',
-    user: safeUser,
-  });
+  res.json({ success: true, message: 'Login successful', user: safeUser });
 });
-
-// export const login = asyncHandler(async (req, res) => {
-//   const { email, password } = req.body;
-
-//   // 1. Validation (Basic check before hitting DB)
-//   if (!email || !password) {
-//     throw new ApiError(400, 'Email and password are required');
-//   }
-
-//   // 2. Fetch user
-//   const user = await prisma.user.findUnique({ where: { email } });
-  
-  
-//   // 3. Constant-time check: Even if user doesn't exist, we should 
-//   // ideally proceed to a hash check to prevent timing attacks, 
-//   // but a simple check is standard for most apps.
-//   if (!user) {
-//     throw new ApiError(401, 'Invalid email or password');
-//   }
-
-//   // 4. Verify Password
-//   const isMatch = await bcrypt.compare(password, user.password);
-//   if (!isMatch) {
-//     throw new ApiError(401, 'Invalid email or password');
-//   }
-
-//   // 5. Generate Tokens
-//   const tokens = await generateTokens({ email:email });
-
-//   // 6. Set Cookies  
-//   const cookieOptions = {
-//     httpOnly: true,
-//     secure: true,          // Only true in production (HTTPS)
-//     sameSite: 'none', 
-//     path: '/',
-//   };
-
-//   res.cookie('accessToken', tokens.accessToken, {
-//     ...cookieOptions,
-//     maxAge: 15 * 60 * 1000, // 15 mins
-//   });
-
-//   res.cookie('refreshToken', tokens.refreshToken, {
-//     ...cookieOptions,
-//     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-//   });
-
-//   // 7. Strip sensitive data
-//   const { password: _, ...safeUser } = user;
-
-//   res.status(200).json({
-//     success: true,
-//     message: 'Login successful',
-//     user: safeUser,
-//     // Note: You usually don't send tokens in JSON if using Cookies
-//   });
-// });
 
 // ─── Get Profile ──────────────────────────────────────
 export const getProfile = asyncHandler(async (req, res) => {
-  const user = await prisma.user.findUnique({
-    where: { id: req.user.id },
-    select: { id: true, name: true, email: true, avatar: true, role: true }
+  // req.user.id comes from the authenticateUser middleware
+  const user = await userService.findUserById(req.user.id, {
+    id: true, name: true, email: true, avatar: true, role: true 
   });
+  
+  if (!user) throw new ApiError(404, 'User not found');
   res.json({ success: true, user });
+});
+
+// ─── Refresh Token ────────────────────────────────────
+export const refreshToken = asyncHandler(async (req, res) => {
+  const token = req.cookies.refreshToken;
+  if (!token) throw new ApiError(401, "No refresh token provided");
+
+  const dbToken = await userService.findRefreshToken(token);
+  if (!dbToken) throw new ApiError(403, "Invalid refresh token");
+
+  // Rotation Logic
+  await userService.deleteRefreshToken(token);
+  
+  // Assuming generateTokens handles the payload and new DB entry
+  const tokens = await generateTokens({ id: dbToken.userId }); 
+  setAuthCookies(res, tokens);
+
+  res.json({ success: true, message: "Tokens rotated" });
 });
