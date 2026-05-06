@@ -33,9 +33,8 @@ export const refreshToken = asyncHandler(async (req, res)=> {
 
 })
 
-export const verifyUserToken = asyncHandler(async (req, res) => {
+export const verifyUser = asyncHandler(async (req, res) => {
   const {userId} = req.user.id
-  try {
     const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { id: true, name: true, email: true,  isAdmin: true }
@@ -44,11 +43,6 @@ export const verifyUserToken = asyncHandler(async (req, res) => {
   if (!user) throw new ApiError(401, 'User not found');
   
 
-
-} catch (error) {
-    return res.status(401).json({ error: "server error" });
-  }
-  
 })
 
 // ─── Register ─────────────────────────────────────────
