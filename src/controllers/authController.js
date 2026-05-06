@@ -5,6 +5,7 @@ import ApiError from '../utils/ApiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import { error } from 'node:console';
 import { authenticateUser } from '../middleware/authMiddleware.js';
+import { setAuthCookies } from '../utils/auth.service.js';
 
 export const refreshToken = asyncHandler(async (req, res)=> {
   const {refreshToken} = req.cookies.refreshToken
@@ -53,7 +54,6 @@ export const verifyUserToken = asyncHandler(async (req, res) => {
 // ─── Register ─────────────────────────────────────────
 export const register = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
-try {
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) throw new ApiError(400, 'Email already exists');
 
@@ -65,51 +65,23 @@ try {
   });
 
   const tokens = await generateTokens({ id: user.id, email: user.email });
-  res.cookie('accessToken', tokens.accessToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    maxAge: 15 * 60 * 1000,
-  });
-  res.cookie('refreshToken', tokens.refreshToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    path: '/',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
+  setAuthCookies(res, tokens);
 
   res.status(201).json({ success: true, user });
-} catch (error) {
-return res.status(401).json({ error: "server error" });
-
-}
 });
 
 // ─── Login ────────────────────────────────────────────
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-try {
+
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) throw new ApiError(400, 'Invalid email or password');
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new ApiError(400, 'Invalid email or password');
 
-  const tokens = await generateTokens({email: email });
-  res.cookie('accessToken', tokens.accessToken, {
-    httpOnly: true,
-    secure: true,      // Set to false for localhost/HTTP
-    sameSite: 'none',
-    maxAge: 15 * 60 * 1000 // 15 Minutes
-  });
-  res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,    // 🛡️ JavaScript cannot read this (XSS protection)
-      secure: true,      // 🔒 Only sent over HTTPS (use false for local development)
-      sameSite: 'none', // 🛑 Prevents CSRF
-      path: '/',         // 📂 Available for all routes
-      maxAge: 7 * 24 * 60 * 60 * 1000 // ⏳ 7 days (matching your DB/JWT expiry)
-    });
+  const tokens = await generateTokens({id: user.id, email: user.email });
+  setAuthCookies(res, tokens)
 
   // ✅ never send password back
   const { password: _, ...safeUser } = user;
@@ -119,9 +91,6 @@ try {
     message: 'Login successful',
     user: safeUser,
   });
-} catch (error) {
-return res.status(401).json({ error: "Unauthorized" });
-}
 });
 
 // export const login = asyncHandler(async (req, res) => {

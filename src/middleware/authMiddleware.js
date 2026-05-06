@@ -4,47 +4,62 @@ import ApiError from '../utils/ApiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
 export const authenticateUser = asyncHandler(async (req, res, next) => {
-   try {
-    // get token from cookies instead of headers
-    const token = req.cookies?.accessToken;
+  // 1. Extract the token
+  const token = req.cookies?.accessToken;
 
-    if (!token) {
-      throw new ApiError(401, "No token provided");
-    }
-    jwt.sign(email, process.env.JWT_SECRET)
-    jwt.sign(email, process.env.REFRESH_TOKEN)
-
-
-    //const decoded = jwt.verify(email, process.env.JWT_SECRET);
-
-
-    //req.user = decoded; // contains userId or whatever you signed
-    next();
-
-  } catch (error) {
-    next(new ApiError(401, "Invalid or expired token"));
+  if (!token) {
+    throw new ApiError(401, "Authentication required. Please log in.");
   }
-  const user = await prisma.user.findUnique({
-    where: { id: decoded.id },
-    select: { id: true, name: true, email: true, role: true, isAdmin: true }
-  });
 
-  if (!user) throw new ApiError(401, 'User not found');
+  try {
+    // 2. Verify the token (Use VERIFY, not SIGN)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-  req.user = user;
-  next();
+    // 3. Fetch the latest user data from DB to ensure account still exists/is active
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      select: { 
+        id: true, 
+        name: true, 
+        email: true, 
+        role: true, 
+        isAdmin: true 
+      }
+    });
+
+    if (!user) {
+      throw new ApiError(401, 'User no longer exists');
+    }
+
+    // 4. Attach user to the request object
+    req.user = user;
+    
+    // 5. Move to the next middleware or controller
+    next();
+  } catch (error) {
+    // Handle expired or tampered tokens specifically
+    const message = error.name === 'TokenExpiredError' ? 'Token expired' : 'Invalid token';
+    throw new ApiError(401, message);
+  }
 });
 
+/**
+ * Guard for Admin-only routes
+ */
 export const verifyAdmin = (req, res, next) => {
   if (!req.user?.isAdmin) {
-    throw new ApiError(403, 'Admin access required');
+    return next(new ApiError(403, 'Access denied. Admin privileges required.'));
   }
   next();
 };
 
+/**
+ * Flexible Guard for Role-based access
+ * Usage: router.get('/path', authenticateUser, verifyRole('EDITOR', 'MODERATOR'), controller)
+ */
 export const verifyRole = (...roles) => (req, res, next) => {
-  if (!roles.includes(req.user?.role)) {
-    throw new ApiError(403, `Role ${req.user?.role} is not authorized`);
+  if (!req.user || !roles.includes(req.user.role)) {
+    return next(new ApiError(403, `Access denied. Authorized roles: ${roles.join(', ')}`));
   }
   next();
 };
