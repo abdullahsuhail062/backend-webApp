@@ -1,4 +1,4 @@
-import { userService } from '../../prisma.user-service.js';
+import { userService } from '../../prisma/prisma.user-service.js' 
 import { generateTokens } from '../utils/generateToken.js';
 import { setAuthCookies } from '../utils/auth.service.js';
 import ApiError from '../utils/ApiError.js';
