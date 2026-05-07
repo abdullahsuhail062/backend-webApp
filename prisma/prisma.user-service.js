@@ -1,22 +1,6 @@
 import prisma from '../config/db.js';
 import bcrypt from 'bcryptjs';
 
-getAuthUser: async (id) => {
-    return await prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        avatar: true,
-        role: true,
-        isAdmin: true,
-        // Add any other fields needed for initial UI state
-      },
-    });
-  }
-
-
 export const userService = {
     getAuthUser: async (id) => {
     return await prisma.user.findUnique({
