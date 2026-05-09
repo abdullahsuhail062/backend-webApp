@@ -4,7 +4,7 @@ import { register, login, getProfile, refreshToken } from '../controllers/authCo
 import { authenticateUser } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
-router.post('/refresh', refreshToken);
+router.post('/refreshToken', refreshToken);
 router.post('/register', register);
 router.post('/login', login);
 router.get('/profile', authenticateUser, getProfile);
