@@ -1,4 +1,5 @@
 import { userService } from '../../prisma/prisma.user-service.js' 
+import jwt from 'jsonwebtoken';
 import { generateTokens } from '../utils/generateToken.js';
 import { setAuthCookies } from '../utils/auth.service.js';
 import ApiError from '../utils/ApiError.js';
