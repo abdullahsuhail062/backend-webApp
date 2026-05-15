@@ -64,36 +64,7 @@ export const getProfile = asyncHandler(async (req, res) => {
   res.json({ success: true, user });
 });
 
-// ─── Refresh Token ────────────────────────────────────
-// export const refreshToken = asyncHandler(async (req, res) => {
-//   const token = req.cookies.refreshToken;
-//   if (!token) throw new ApiError(401, "No refresh token provided");
 
-//   // 1. Verify JWT signature/expiration first
-//   let decoded;
-//   try {
-//     decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
-//   } catch (err) {
-//     throw new ApiError(403, "Refresh token expired or invalid");
-//   }
-
-//   // 2. Check DB
-//   const dbToken = await prisma.refreshToken.findUnique({ where: { token } });
-//   if (!dbToken) {
-//     // Optional: If token not in DB but JWT was valid, someone might be reusing an old token!
-//     throw new ApiError(403, "Token revoked");
-//   }
-
-//   // 3. Get User for full payload (to get the email!)
-//   const user = await prisma.user.findUnique({ where: { id: dbToken.userId } });
-
-//   // 4. Rotation: Delete OLD, Create NEW
-//   await prisma.refreshToken.delete({ where: { token } });
-//   const tokens = await generateTokens(user); // Now has id and email
-  
-//   setAuthCookies(res, tokens);
-//   res.json({ success: true });
-// });
 
 export const refreshToken = asyncHandler(async (req, res) => {
   const token = req.cookies.refreshToken;
