@@ -9,12 +9,12 @@ export const setAuthCookies = (res, tokens) => {
   const accessTokenOptions = {
     httpOnly: true,
     secure: true, // 🔒 HTTPS in production, false for localhost
-    sameSite: 'none', // 🛑 'none' requires 'secure: true'
+    sameSite: 'Lex', // 🛑 'none' requires 'secure: true'
   };
    const refreshTokenOptions = {
     httpOnly: true,
     secure: true, // 🔒 HTTPS in production, false for localhost
-    sameSite: 'none', // 🛑 'none' requires 'secure: true'
+    sameSite: 'Lex', // 🛑 'none' requires 'secure: true'
     path: '/',
   };
 
