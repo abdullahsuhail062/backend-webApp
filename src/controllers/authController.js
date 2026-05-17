@@ -1,7 +1,7 @@
 import { userService } from '../../prisma/prisma.user-service.js' 
 import jwt from 'jsonwebtoken';
-import { generateTokens } from '../utils/generateToken.js';
-import { setAuthCookies } from '../utils/auth.service.js';
+import { generateAccessToken, generateTokens } from '../utils/generateToken.js';
+import { setAuthCookies, setAuthCookiesForAccessToken } from '../utils/auth.service.js';
 import ApiError from '../utils/ApiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import bcrypt from 'bcryptjs';
@@ -79,8 +79,27 @@ export const refreshToken = asyncHandler(async (req, res) => {
   try {
     decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
   } catch (err) {
-    // Log the specific JWT error (e.g., 'invalid signature', 'jwt malformed')
     console.error("JWT Verify Error:", err.message);
     throw new ApiError(403, "Refresh token expired or invalid");
   }
+
+  const user = await prisma.user.findUnique({
+    where: { id: decoded.id }
+  });
+
+  // If the user doesn't exist, or the token in the DB doesn't match the cookie token
+  if (!user || user.refreshToken !== token) {
+    throw new ApiError(403, "Refresh token is invalid or has been revoked");
+  }
+
+  // === 1. GENERATE NEW ACCESS TOKEN ===
+  // Use decoded.id or whatever property you originally embedded in the payload
+  const accessToken = generateAccessToken({id: user.id, email: user.email})
+setAuthCookiesForAccessToken(res, {accessToken })
+  // === 2. SEND THE RESPONSE (Crucial!) ===
+  // This explicitly closes the HTTP request so Vercel and Angular can move on
+  return res.status(200).json({
+    success: true,
+    message: "Token refreshed successfully",
+  });
 });

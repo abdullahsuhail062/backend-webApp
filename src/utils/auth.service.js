@@ -42,3 +42,20 @@ export const clearAuthCookies = (res) => {
   res.clearCookie('accessToken', options);
   res.clearCookie('refreshToken', options);
 };
+
+export const setAuthCookiesForAccessToken = (res, tokens) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  const accessTokenOptions = {
+    httpOnly: true,
+    secure: true, // 🔒 HTTPS in production, false for localhost
+    sameSite: 'strict', // 🛑 'none' requires 'secure: true'
+  };
+
+   // Set Access Token (Short lived)
+  res.cookie('accessToken', tokens.accessToken, {
+    ...accessTokenOptions,
+    maxAge: 15 * 60 * 1000, // 15 Minutes
+  });
+
+}
