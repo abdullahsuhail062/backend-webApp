@@ -30,7 +30,7 @@ export const generateAccessToken = (payload) => {
   return jwt.sign({id: payload.id}, process.env.JWT_SECRET, process.env.JWT_EXPIRES_IN)
 }
 
-export const generateRefreshToken = (payload) => {
+export const generateRefreshToken =async (payload) => {
   if (!process.env.REFRESH_TOKEN_SECRET) {
     throw new Error("REFRESH_TOKEN_SECRET is missing from environment variables");
   }
