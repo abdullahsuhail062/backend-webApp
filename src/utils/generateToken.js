@@ -24,5 +24,8 @@ export const generateTokens = async (payload) => {
 };
 
 export const generateAccessToken = (payload) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("ACCESS_TOKEN_SECRET is missing from environment variables");
+  }
   return jwt.sign({id: payload.id, email: payload.email}, process.env.JWT_SECRET, process.env.JWT_EXPIRES_IN)
 }
