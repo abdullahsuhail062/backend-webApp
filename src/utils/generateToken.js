@@ -39,27 +39,28 @@ export const generateAccessToken = (payload) => {
   );
 };
 
+
 export const generateRefreshToken = async (payload) => {
   if (!process.env.REFRESH_TOKEN_SECRET) {
     throw new Error("REFRESH_TOKEN_SECRET is missing from environment variables");
   }
 
-  // 1. Generate the token string first and save it to a variable
+  // 1. Sign the token string
   const tokenString = jwt.sign(
     { id: payload.id }, 
     process.env.REFRESH_TOKEN_SECRET, 
     { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN }
   );
 
-  // 2. Await the database creation block BEFORE returning
+  // 2. Await the database insert (Safe inside the async block)
   await prisma.refreshToken.create({
     data: {
       token: tokenString,
       userId: payload.id,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     },
   });
 
-  // 3. Return the token string to the controller at the very end
-  return tokenString;
-};
+  // 3. The return statement is legal because it is inside the function
+  return tokenString; 
+}; // <──  THE CORRECT PLACEMENT FOR THE CLOSING BRACE
