@@ -6,7 +6,6 @@ import { setAuthCookies, setAuthCookiesForAccessToken, setAuthCookiesForRefreshT
 import ApiError from '../utils/ApiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import bcrypt from 'bcryptjs';
-import { use } from 'react';
 
 export const getMe = asyncHandler(async (req, res) => {
   // 1. The middleware already verified the token and fetched the ID
