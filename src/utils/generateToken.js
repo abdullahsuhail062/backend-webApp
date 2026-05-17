@@ -23,23 +23,43 @@ export const generateTokens = async (payload) => {
   return { accessToken, refreshToken };
 };
 
+
+
+
 export const generateAccessToken = (payload) => {
   if (!process.env.JWT_SECRET) {
     throw new Error("ACCESS_TOKEN_SECRET is missing from environment variables");
   }
-  return jwt.sign({id: payload.id}, process.env.JWT_SECRET, process.env.JWT_EXPIRES_IN)
-}
+  
+  // Fix: Map the string variable to the 'expiresIn' key inside a plain object
+  return jwt.sign(
+    { id: payload.id }, 
+    process.env.JWT_SECRET, 
+    { expiresIn: process.env.JWT_EXPIRES_IN } 
+  );
+};
 
-export const generateRefreshToken =async (payload) => {
+export const generateRefreshToken = async (payload) => {
   if (!process.env.REFRESH_TOKEN_SECRET) {
     throw new Error("REFRESH_TOKEN_SECRET is missing from environment variables");
   }
-  return jwt.sign({id: payload.id}, process.env.REFRESH_TOKEN_EXPIRES_IN)
-await prisma.refreshToken.create({
+
+  // 1. Generate the token string first and save it to a variable
+  const tokenString = jwt.sign(
+    { id: payload.id }, 
+    process.env.REFRESH_TOKEN_SECRET, 
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN }
+  );
+
+  // 2. Await the database creation block BEFORE returning
+  await prisma.refreshToken.create({
     data: {
-      token: refreshToken,
+      token: tokenString,
       userId: payload.id,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
     },
   });
-}
+
+  // 3. Return the token string to the controller at the very end
+  return tokenString;
+};
