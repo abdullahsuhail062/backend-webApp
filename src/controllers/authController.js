@@ -1,10 +1,12 @@
 import { userService } from '../../prisma/prisma.user-service.js' 
+import prisma from '../config/db.js';
 import jwt from 'jsonwebtoken';
-import { generateAccessToken, generateTokens } from '../utils/generateToken.js';
-import { setAuthCookies, setAuthCookiesForAccessToken } from '../utils/auth.service.js';
+import { generateAccessToken, generateRefreshToken, generateTokens } from '../utils/generateToken.js';
+import { setAuthCookies, setAuthCookiesForAccessToken, setAuthCookiesForRefreshToken } from '../utils/auth.service.js';
 import ApiError from '../utils/ApiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import bcrypt from 'bcryptjs';
+import { use } from 'react';
 
 export const getMe = asyncHandler(async (req, res) => {
   // 1. The middleware already verified the token and fetched the ID
@@ -30,8 +32,10 @@ export const register = asyncHandler(async (req, res) => {
 
   const user = await userService.createUser({ name, email, password });
 
-  const tokens = await generateTokens({ id: user.id, email: user.email });
-  setAuthCookies(res, tokens);
+  const refreshToken = await generateRefreshToken({ id: user.id});
+  const accessToken = generateAccessToken({id: user.id})
+  setAuthCookiesForRefreshToken(res, refreshToken);
+  setAuthCookiesForAccessToken(res, accessToken);
 
   res.status(201).json({ success: true, user });
 });
@@ -46,8 +50,10 @@ export const login = asyncHandler(async (req, res) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new ApiError(401, 'Invalid email or password');
 
-  const tokens = await generateTokens({ id: user.id, email: user.email });
-  setAuthCookies(res, tokens);
+  const refreshToken = await generateRefreshToken({ id: user.id});
+  const accessToken = generateAccessToken({id: user.id})
+  setAuthCookiesForRefreshToken(res, refreshToken);
+  setAuthCookiesForAccessToken(res, accessToken);
 
   const { password: _, ...safeUser } = user;
   res.json({ success: true, message: 'Login successful', user: safeUser });
@@ -94,8 +100,8 @@ export const refreshToken = asyncHandler(async (req, res) => {
 
   // === 1. GENERATE NEW ACCESS TOKEN ===
   // Use decoded.id or whatever property you originally embedded in the payload
-  const accessToken = generateAccessToken({id: user.id, email: user.email})
-setAuthCookiesForAccessToken(res, {accessToken })
+  const accessToken = generateAccessToken({id: user.id})
+  setAuthCookiesForAccessToken(res, accessToken);
   // === 2. SEND THE RESPONSE (Crucial!) ===
   // This explicitly closes the HTTP request so Vercel and Angular can move on
   return res.status(200).json({

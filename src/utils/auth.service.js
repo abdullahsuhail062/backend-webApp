@@ -59,3 +59,20 @@ export const setAuthCookiesForAccessToken = (res, tokens) => {
   });
 
 }
+
+export const setAuthCookiesForRefreshToken = (res, tokens) => {
+
+  const refreshTokenOptions = {
+    httpOnly: true,
+    secure: true, // 🔒 HTTPS in production, false for localhost
+    sameSite: 'strict', // 🛑 'none' requires 'secure: true'
+    path: '/',
+  };
+
+   // Set Access Token (Short lived)
+  res.cookie('refreshToken', tokens.refreshToken, {
+    ...refreshTokenOptions,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 Days
+  });
+
+}
