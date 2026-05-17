@@ -82,16 +82,7 @@ export const refreshToken = asyncHandler(async (req, res) => {
   // DEBUG LOG: Print the literal string characters to your Vercel console
   console.log("Cleaned Token String:", token);
 
-  let decoded;
-  try {
-    decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
-  } catch (err) {
-    console.error("JWT Verify Error:", err.message);
-    throw new ApiError(403, "Refresh token expired or invalid");
-  }
-  
-  // ... rest of your logic
-});
+  let decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
 
   const user = await prisma.user.findUnique({
     where: { id: decoded.id }
@@ -112,3 +103,6 @@ export const refreshToken = asyncHandler(async (req, res) => {
     success: true,
     message: "Token refreshed successfully",
   });
+});
+
+  
