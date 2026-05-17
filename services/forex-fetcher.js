@@ -17,24 +17,24 @@ import axios from 'axios';
 // module.exports = { fetchForexNews };
 
 
-const FINNHUB_KEY = 'd7plc8hr01qosaap1t70d7plc8hr01qosaap1t7g';
+// const FINNHUB_KEY = 'd7plc8hr01qosaap1t70d7plc8hr01qosaap1t7g';
 
-export const getForexNews= async () => {
-    try {
-        const response = await axios.get('https://finnhub.io/api/v1/news?category=forex&token=d7plc8hr01qosaap1t70d7plc8hr01qosaap1t7g');
-        return await response.data
-        const articles = response.data; // Returns an array of news objects
+// export const getForexNews= async () => {
+//     try {
+//         const response = await axios.get('https://finnhub.io/api/v1/news?category=forex&token=d7plc8hr01qosaap1t70d7plc8hr01qosaap1t7g');
+//         return await response.data
+//         const articles = response.data; // Returns an array of news objects
 
-        articles.slice(0, 5).forEach(news => {
-            console.log(`--- ${news.datetime} ---`);
-            console.log(`Headline: ${news.headline}`);
-            console.log(`Summary: ${news.summary}`);
-            console.log(`Source: ${news.source}`);
-            console.log(`URL: ${news.url}\n`);
-        });
-    } catch (error) {
-        console.error('Error fetching Finnhub news:', error.message);
-    }
-}
+//         articles.slice(0, 5).forEach(news => {
+//             console.log(`--- ${news.datetime} ---`);
+//             console.log(`Headline: ${news.headline}`);
+//             console.log(`Summary: ${news.summary}`);
+//             console.log(`Source: ${news.source}`);
+//             console.log(`URL: ${news.url}\n`);
+//         });
+//     } catch (error) {
+//         console.error('Error fetching Finnhub news:', error.message);
+//     }
+// }
 
-  export default getForexNews();
+//   export default getForexNews();
