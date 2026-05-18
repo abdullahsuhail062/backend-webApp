@@ -73,6 +73,8 @@ export const getProfile = asyncHandler(async (req, res) => {
 
 export const refreshToken = asyncHandler(async (req, res) => {
   let token = req.cookies.refreshToken;
+  console.log(token, 'cookies extracted token');
+  
   
   if (!token) throw new ApiError(401, "No refresh token provided");
 
