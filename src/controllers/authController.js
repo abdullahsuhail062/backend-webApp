@@ -46,6 +46,9 @@ export const register = asyncHandler(async (req, res) => {
 // ─── Login ────────────────────────────────────────────
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
+  const token = req.cookies.refreshToken;
+  console.log(token,'refresh token to be inspected');
+  
 
   const user = await userService.findUserByEmail(email);
   if (!user) throw new ApiError(401, 'Invalid email or password');
