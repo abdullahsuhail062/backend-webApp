@@ -53,11 +53,10 @@ export const login = asyncHandler(async (req, res) => {
   const accessToken = generateAccessToken({id: user.id})
   setAuthCookiesForRefreshToken(res, refreshToken);
   setAuthCookiesForAccessToken(res, accessToken);
-  console.log(refreshToken,'refreshToken', accessToken, 'tokens being inspected');
   
 
   const { password: _, ...safeUser } = user;
-  res.json({ success: true, message: 'Login successful', user: safeUser });
+  res.json({ success: true, message: 'Login successful', user: safeUser, accessToken, refreshToken });
 });
 
 // ─── Get Profile ──────────────────────────────────────
