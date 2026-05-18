@@ -44,7 +44,6 @@ export const clearAuthCookies = (res) => {
 };
 
 export const setAuthCookiesForAccessToken = (res, tokens) => {
-  const isProduction = process.env.NODE_ENV === 'production';
 
   const accessTokenOptions = {
     httpOnly: true,
