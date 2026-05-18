@@ -49,7 +49,7 @@ export const setAuthCookiesForAccessToken = (res, tokens) => {
   const accessTokenOptions = {
     httpOnly: true,
     secure: true, // 🔒 HTTPS in production, false for localhost
-    sameSite: 'strict', // 🛑 'none' requires 'secure: true'
+    sameSite: 'lax', // 🛑 'none' requires 'secure: true'
   };
 
    // Set Access Token (Short lived)
@@ -65,7 +65,7 @@ export const setAuthCookiesForRefreshToken = (res, tokens) => {
   const refreshTokenOptions = {
     httpOnly: true,
     secure: true, // 🔒 HTTPS in production, false for localhost
-    sameSite: 'strict', // 🛑 'none' requires 'secure: true'
+    sameSite: 'lax', // 🛑 'none' requires 'secure: true'
     path: '/',
   };
 

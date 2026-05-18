@@ -21,14 +21,15 @@ app.use(cookieParser());
 
 // ─── Security Middleware ───────────────────────────────
 app.use(helmet());
+app.enable('trust proxy');
 
 // ─── CORS ─────────────────────────────────────────────
-// app.use(cors({
-//   origin: 'https://trading-web-app-hazel.vercel.app',
-//   credentials: true,
-//   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-//   allowedHeaders: ['Content-Type', 'Authorization']
-// }));
+app.use(cors({
+  origin: 'https://trading-web-app-hazel.vercel.app',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.options('/{*path}', cors());
 app.set('trust proxy', 1);
 

@@ -56,7 +56,7 @@ export const login = asyncHandler(async (req, res) => {
   
 
   const { password: _, ...safeUser } = user;
-  res.json({ success: true, message: 'Login successful', user: safeUser, accessToken, refreshToken });
+  res.json({ success: true, message: 'Login successful', user: safeUser });
 });
 
 // ─── Get Profile ──────────────────────────────────────
