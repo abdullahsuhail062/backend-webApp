@@ -53,6 +53,8 @@ export const login = asyncHandler(async (req, res) => {
   const accessToken = generateAccessToken({id: user.id})
   setAuthCookiesForRefreshToken(res, refreshToken);
   setAuthCookiesForAccessToken(res, accessToken);
+  console.log(refreshToken, accessToken, 'tokens being inspected');
+  
 
   const { password: _, ...safeUser } = user;
   res.json({ success: true, message: 'Login successful', user: safeUser });
@@ -72,7 +74,7 @@ export const getProfile = asyncHandler(async (req, res) => {
 
 
 export const refreshToken = asyncHandler(async (req, res) => {
-  let token = req.cookie.refreshToken;
+  let token = req.cookies.refreshToken;
   console.log(token, 'cookies extracted token');
   
   
