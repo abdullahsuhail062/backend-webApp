@@ -6,7 +6,6 @@ import { setAuthCookies, setAuthCookiesForAccessToken, setAuthCookiesForRefreshT
 import ApiError from '../utils/ApiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import bcrypt from 'bcryptjs';
-import { token } from 'morgan';
 
 export const getMe = asyncHandler(async (req, res) => {
   // 🚀 NO database queries! Just read the data your middleware already prepared.
@@ -35,8 +34,6 @@ export const register = asyncHandler(async (req, res) => {
 // ─── Login ────────────────────────────────────────────
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  const token = req.cookies.refreshToken;
-  console.log(token,'refresh token to be inspected');
   
 
   const user = await userService.findUserByEmail(email);
