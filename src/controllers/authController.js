@@ -72,7 +72,7 @@ export const getProfile = asyncHandler(async (req, res) => {
 
 
 export const refreshToken = asyncHandler(async (req, res) => {
-  let token = req.cookies.refreshToken;
+  let token = req.cookie.refreshToken;
   console.log(token, 'cookies extracted token');
   
   
