@@ -9,8 +9,7 @@ import bcrypt from 'bcryptjs';
 import { token } from 'morgan';
 
 export const getMe = asyncHandler(async (req, res) => {
- const token = req.cookies.refreshToken;
-  console.log('is token being sent', token);
+ 
   
   // 1. The middleware already verified the token and fetched the ID
   // 2. We fetch a fresh copy of the user to ensure data is current
@@ -59,17 +58,8 @@ export const login = asyncHandler(async (req, res) => {
   const refreshToken = await generateRefreshToken({ id: user.id});
   const accessToken = generateAccessToken({id: user.id})
   setAuthCookiesForRefreshToken(res, refreshToken);
-  
   setAuthCookiesForAccessToken(res, accessToken);
-//   res.cookie('accessToken',accessToken,{  httpOnly: true,
-//     secure: true, sameSite: 'lax', maxAge: 15 * 60 * 1000,})
 
-//     res.cookie('refreshToken',refreshToken, {httpOnly: true,
-//     secure: true, 
-//     sameSite: 'lax',
-//         path: '/',
-// maxAge: 7 * 24 * 60 * 60 * 1000, // 7 Days
-// })
 
 
   const { password: _, ...safeUser } = user;
