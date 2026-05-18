@@ -61,10 +61,10 @@ export const login = asyncHandler(async (req, res) => {
   //setAuthCookiesForRefreshToken(res, refreshToken);
   
   //setAuthCookiesForAccessToken(res, accessToken);
-  res.cookie('accessToken',{  httpOnly: true,
+  res.cookie('accessToken',accessToken,{  httpOnly: true,
     secure: true, sameSite: 'lax', maxAge: 15 * 60 * 1000,})
 
-    res.cookie('refreshToken', {httpOnly: true,
+    res.cookie('refreshToken',refreshToken, {httpOnly: true,
     secure: true, 
     sameSite: 'lax',
         path: '/',
