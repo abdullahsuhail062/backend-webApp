@@ -9,22 +9,12 @@ import bcrypt from 'bcryptjs';
 import { token } from 'morgan';
 
 export const getMe = asyncHandler(async (req, res) => {
- 
-  
-  // 1. The middleware already verified the token and fetched the ID
-  // 2. We fetch a fresh copy of the user to ensure data is current
-  const user = await userService.getAuthUser(req.user.id);
-
-  if (!user) {
-    throw new ApiError(404, "User session not found");
-  }
-
+  // 🚀 NO database queries! Just read the data your middleware already prepared.
   res.status(200).json({
     success: true,
-    user,
+    user: req.user,
   });
 });
-
 // ─── Register ─────────────────────────────────────────
 export const register = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
