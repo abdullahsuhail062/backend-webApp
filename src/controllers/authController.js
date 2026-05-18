@@ -53,7 +53,7 @@ export const login = asyncHandler(async (req, res) => {
   const accessToken = generateAccessToken({id: user.id})
   setAuthCookiesForRefreshToken(res, refreshToken);
   setAuthCookiesForAccessToken(res, accessToken);
-  console.log(refreshToken, accessToken, 'tokens being inspected');
+  console.log(refreshToken,'refreshToken', accessToken, 'tokens being inspected');
   
 
   const { password: _, ...safeUser } = user;
