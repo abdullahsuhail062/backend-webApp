@@ -9,7 +9,7 @@ import bcrypt from 'bcryptjs';
 import { token } from 'morgan';
 
 export const getMe = asyncHandler(async (req, res) => {
-  token = req.cookies.refreshToken;
+ const token = req.cookies.refreshToken;
   console.log('is token being sent', token);
   
   // 1. The middleware already verified the token and fetched the ID
