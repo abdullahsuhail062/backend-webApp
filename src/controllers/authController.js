@@ -41,12 +41,12 @@ export const login = asyncHandler(async (req, res) => {
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new ApiError(401, 'Invalid email or password');
+const refreshToken = await generateRefreshToken({ id: user.id });
+const accessToken = generateAccessToken({ id: user.id });
 
-  const refreshToken = await generateRefreshToken({ id: user.id});
-  const accessToken = generateAccessToken({id: user.id})
-  setAuthCookiesForRefreshToken(res, refreshToken);
-  setAuthCookiesForAccessToken(res, accessToken);
-
+// ✅ FIXED: Wrapping them in objects creates { refreshToken: '...' } and { accessToken: '...' }
+setAuthCookiesForRefreshToken(res, { refreshToken });
+setAuthCookiesForAccessToken(res, { accessToken });
 
 
   const { password: _, ...safeUser } = user;
