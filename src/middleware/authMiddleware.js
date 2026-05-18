@@ -6,6 +6,8 @@ import asyncHandler from '../utils/asyncHandler.js';
 export const authenticateUser = asyncHandler(async (req, res, next) => {
   // 1. Extract the token
   const token = req.cookies?.accessToken;
+  console.log(token, 'token health');
+  
 
   if (!token) {
     throw new ApiError(401, "Authentication required. Please log in.");
