@@ -6,8 +6,12 @@ import { setAuthCookies, setAuthCookiesForAccessToken, setAuthCookiesForRefreshT
 import ApiError from '../utils/ApiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import bcrypt from 'bcryptjs';
+import { token } from 'morgan';
 
 export const getMe = asyncHandler(async (req, res) => {
+  token = req.cookies.refreshToken;
+  console.log('is token being sent', token);
+  
   // 1. The middleware already verified the token and fetched the ID
   // 2. We fetch a fresh copy of the user to ensure data is current
   const user = await userService.getAuthUser(req.user.id);
