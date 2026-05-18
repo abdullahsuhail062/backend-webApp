@@ -1,7 +1,7 @@
 import { userService } from '../../prisma/prisma.user-service.js' 
 import prisma from '../config/db.js';
 import jwt from 'jsonwebtoken';
-import { generateAccessToken, generateRefreshToken, generateTokens } from '../utils/generateToken.js';
+import { generateAccessToken, generateRefreshToken } from '../utils/generateToken.js';
 import { setAuthCookies, setAuthCookiesForAccessToken, setAuthCookiesForRefreshToken } from '../utils/auth.service.js';
 import ApiError from '../utils/ApiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
