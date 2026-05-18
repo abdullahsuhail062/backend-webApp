@@ -4,6 +4,6 @@ import { authenticateUser } from '../middleware/authMiddleware.js';
 import router from './authRoutes.js';
 
 // This is the endpoint the frontend calls on App.js/App.tsx mount
-router.get('/me', authenticateUser, getMe);
+router.get('/me', getMe);
 
 export default router
