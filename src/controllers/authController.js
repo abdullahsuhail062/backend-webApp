@@ -58,18 +58,18 @@ export const login = asyncHandler(async (req, res) => {
 
   const refreshToken = await generateRefreshToken({ id: user.id});
   const accessToken = generateAccessToken({id: user.id})
-  //setAuthCookiesForRefreshToken(res, refreshToken);
+  setAuthCookiesForRefreshToken(res, refreshToken);
   
-  //setAuthCookiesForAccessToken(res, accessToken);
-  res.cookie('accessToken',accessToken,{  httpOnly: true,
-    secure: true, sameSite: 'lax', maxAge: 15 * 60 * 1000,})
+  setAuthCookiesForAccessToken(res, accessToken);
+//   res.cookie('accessToken',accessToken,{  httpOnly: true,
+//     secure: true, sameSite: 'lax', maxAge: 15 * 60 * 1000,})
 
-    res.cookie('refreshToken',refreshToken, {httpOnly: true,
-    secure: true, 
-    sameSite: 'lax',
-        path: '/',
-maxAge: 7 * 24 * 60 * 60 * 1000, // 7 Days
-})
+//     res.cookie('refreshToken',refreshToken, {httpOnly: true,
+//     secure: true, 
+//     sameSite: 'lax',
+//         path: '/',
+// maxAge: 7 * 24 * 60 * 60 * 1000, // 7 Days
+// })
 
 
   const { password: _, ...safeUser } = user;
