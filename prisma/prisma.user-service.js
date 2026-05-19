@@ -43,7 +43,7 @@ export const userService = {
 
   // Refresh Token specific logic
   findRefreshToken: async (token) => {
-    return await prisma.refreshToken.findUnique({ where: { token } });
+    return await prisma.refreshToken.findUnique({ where: { token },include: {user: true} });
   },
 
   deleteRefreshToken: async (token) => {
