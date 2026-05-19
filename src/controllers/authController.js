@@ -80,6 +80,8 @@ export const refreshToken = asyncHandler(async (req, res) => {
   let decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
 
   const storedToken = userService.findRefreshToken(token)
+  console.log(storedToken, 'verfy if token fetched successfully!');
+  
 
   // If the user doesn't exist, or the token in the DB doesn't match the cookie token
   if (storedToken !== token) {
