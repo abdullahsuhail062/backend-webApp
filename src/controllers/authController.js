@@ -82,7 +82,7 @@ export const refreshToken = asyncHandler(async (req, res) => {
   const storedToken = userService.findRefreshToken(token)
 
   // If the user doesn't exist, or the token in the DB doesn't match the cookie token
-  if (!user || storedToken !== token) {
+  if (storedToken !== token) {
     throw new ApiError(403, "Refresh token is invalid or has been revoked");
   }
 
