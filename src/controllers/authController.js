@@ -69,35 +69,46 @@ export const getProfile = asyncHandler(async (req, res) => {
 export const refreshToken = asyncHandler(async (req, res) => {
   let token = req.cookies.refreshToken;
   
-  
-  if (!token) throw new ApiError(401, "No refresh token provided");
+  if (!token) {
+    throw new ApiError(401, "No refresh token provided");
+  }
 
-  // Fix: Ensure any URL-encoded cookie characters are cleanly decoded
+  // Ensure any URL-encoded cookie characters are cleanly decoded
   token = decodeURIComponent(token);
 
-  // DEBUG LOG: Print the literal string characters to your Vercel console
+  // 1. Fetch the token from the database first
+  const storedTokenRecord = await userService.findRefreshToken(token);
 
-  let decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
-
-  const storedToken = await userService.findRefreshToken(token)
-  console.log(storedToken, 'comparison of tokens', token);
-  
-
-  // If the user doesn't exist, or the token in the DB doesn't match the cookie token
-  if (storedToken !== token) {
+  // 2. ✅ FIXED COMPARISON: Compare the string token against the object property
+  if (!storedTokenRecord || storedTokenRecord.token !== token) {
     throw new ApiError(403, "Refresh token is invalid or has been revoked");
   }
 
-  // === 1. GENERATE NEW ACCESS TOKEN ===
-  // Use decoded.id or whatever property you originally embedded in the payload
-  const accessToken = generateAccessToken({id: user.id})
-  setAuthCookiesForAccessToken(res, accessToken);
-  // === 2. SEND THE RESPONSE (Crucial!) ===
-  // This explicitly closes the HTTP request so Vercel and Angular can move on
-  return res.status(200).json({
-    success: true,
-    message: "Token refreshed successfully",
-  });
-});
+  // 3. Check expiration date from database state
+  if (new Date() > storedTokenRecord.expiresAt) {
+    throw new ApiError(403, "Refresh token expired. Please login again.");
+  }
 
-  
+  try {
+    // 4. Verify cryptographic signature 
+    jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+    
+    // 5. ✅ FIXED USER ID: Extract from the nested Prisma user model relation
+    const targetUserId = storedTokenRecord.user.id;
+
+    // Generate and set the fresh short-lived access token
+    const accessToken = generateAccessToken({ id: targetUserId });
+    
+    // Wrap it in an object format matching your function's signature
+    setAuthCookiesForAccessToken(res, { accessToken });
+
+    // 6. Respond successfully
+    return res.status(200).json({
+      success: true,
+      message: "Token refreshed successfully",
+    });
+
+  } catch (error) {
+    throw new ApiError(403, "Refresh token signature verification failed");
+  }
+});

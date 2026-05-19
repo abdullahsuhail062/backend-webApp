@@ -43,7 +43,21 @@ export const userService = {
 
   // Refresh Token specific logic
   findRefreshToken: async (token) => {
-    return await prisma.refreshToken.findUnique({ where: { token },include: {user: true} });
+    return await prisma.refreshToken.findUnique({ 
+      where: { token }, 
+      // ✅ Fixed: Added opening brace for include and properly structured the object
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            isAdmin: true
+          }
+        }
+      }
+    });
   },
 
   deleteRefreshToken: async (token) => {
