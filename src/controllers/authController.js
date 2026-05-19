@@ -79,7 +79,7 @@ export const refreshToken = asyncHandler(async (req, res) => {
 
   let decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
 
-  const storedToken = userService.findRefreshToken(token)
+  const storedToken = await userService.findRefreshToken(token)
   console.log(storedToken, 'verfy if token fetched successfully!');
   
 
