@@ -68,7 +68,6 @@ export const getProfile = asyncHandler(async (req, res) => {
 
 export const refreshToken = asyncHandler(async (req, res) => {
   let token = req.cookies.refreshToken;
-  console.log(token, 'cookies extracted token', req.cookies);
   
   
   if (!token) throw new ApiError(401, "No refresh token provided");
@@ -77,16 +76,13 @@ export const refreshToken = asyncHandler(async (req, res) => {
   token = decodeURIComponent(token);
 
   // DEBUG LOG: Print the literal string characters to your Vercel console
-  console.log("Cleaned Token String:", token);
 
   let decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
 
-  const user = await prisma.user.findUnique({
-    where: { id: decoded.id }
-  });
+  const storedToken = userService.findRefreshToken(token)
 
   // If the user doesn't exist, or the token in the DB doesn't match the cookie token
-  if (!user || user.refreshToken !== token) {
+  if (!user || storedToken !== token) {
     throw new ApiError(403, "Refresh token is invalid or has been revoked");
   }
 
